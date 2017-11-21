@@ -1,0 +1,60 @@
+package Assign2.Assign2;
+
+public class Task6Cnf {
+
+    public static int[][] atLeastOne(int[] vars) {
+        int[][] ALO = new int[1][vars.length];
+        for (int i = 0; i < vars.length; i++) {
+            if (vars[i] < 0) {
+                vars[i] = (-1 * vars[i]);
+            }
+        }
+        for (int i = 0; i < 1; i++) {
+            for (int j = 0; j < vars.length; j++) {
+                ALO[i][j] = vars[j];
+            }
+        }
+
+        return ALO;
+    }
+
+
+    public static int[][] atMostOne(int[] vars) {
+        int n = vars.length;
+        int counter = 0;
+        int[][] AMO = new int[(n * (n - 1)) / 2][2]; //newton binom;
+        for (int i = 0; i < vars.length - 1; i++) {
+            for (int j = i + 1; j < vars.length; j++) {
+                AMO[counter][0] = vars[i];
+                AMO[counter][1] = vars[j];
+                counter++;
+            }
+        }
+        for (int i = 0; i < n; i++) { //now we will make every var negative.
+            for (int j = 0; j < 2; j++) {
+                if (AMO[i][j] > 0) {
+                    AMO[i][j] = -AMO[i][j];
+                }
+            }
+        }
+
+
+        return AMO;
+    }
+
+    public static int[][] exactlyOne(int[] vars) {
+        int x = atLeastOne(vars)[0].length;
+        int y = atMostOne(vars).length;
+        int EO[][] = new int[y + 1][2];
+        EO[0] = new int[x];
+        for (int j = 0; j < x; j++) {
+            EO[0][j] = atLeastOne(vars)[0][j];
+        }
+        for (int i =1;i<y+1;i++){
+            for (int j=0;j<2;j++){
+                EO[i][j] = atMostOne(vars)[i-1][j];
+            }
+        }
+        return EO;
+    }
+}
