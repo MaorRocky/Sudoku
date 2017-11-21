@@ -1,6 +1,7 @@
-package Assign2;
+package Assign2.Assign2;
 
-import static Assign2.TasksArrays.*;
+
+import static Assign2.Assign2.TasksArrays.*;
 
 
 public class Task5Verify {
@@ -8,31 +9,36 @@ public class Task5Verify {
     public static boolean isSolution(int sqrtN, int[][] hints, int[][] board) {
         boolean ans = true;
         int root = sqrtN * sqrtN;
-        int[][] matrix = new int[root][root];
-        int[][] Blocmatrix = new int[root][root];
+        int[][] TransposeMatrix = new int[root][root];
+        int[][] BlocMatrix = new int[root][root];
         for (int i = 0; i < root; i++) {
             for (int j = 0; j < root; j++) {
-                matrix[i][j] = board[i][j];
-                Blocmatrix[i][j] = board[i][j];
+                TransposeMatrix[i][j] = board[i][j];
+                BlocMatrix[i][j] = board[i][j];
             }
         }
 
-        columns(matrix);
-        blocks(Blocmatrix, sqrtN);
+        columns(TransposeMatrix);
+        blocks(BlocMatrix, sqrtN);
 
         for (int i = 0; i < root && ans; i++) {
-            if (board == null || board.length != root || board[i].length != root)
-                ans = false;
+            if (board == null || board.length != root || board[i].length != root) {
+//                ans = false;
+                throw new RuntimeException("invalid input");
+
+            }
         }
-        for (int i = 0; i < board.length && ans; i++) {
+        for (int i = 0; i < board.length && ans; i++) {//we have 3 matrixes, one is the original,
+            //one is the columns, and one is the blockMatrix. now well check in each matrix line
+            // if all the the numbers are different.
             if (!(isAllDiff(board[i]))) {
                 ans = false;
             }
 
-            if (!(isAllDiff(matrix[i]))) {
+            if (!(isAllDiff(TransposeMatrix[i]))) {
                 ans = false;
             }
-            if (!(isAllDiff((Blocmatrix[i])))) {
+            if (!(isAllDiff((BlocMatrix[i])))) {
                 ans = false;
             }
         }
