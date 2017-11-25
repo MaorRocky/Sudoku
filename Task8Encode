@@ -1,0 +1,57 @@
+package Assign2.Assign2;
+
+import static Assign2.Assign2.Task6Cnf.exactlyOne;
+import static Assign2.Assign2.Task7Map.varName;
+import static Assign2.Assign2.TasksArrays.blocks;
+import static Assign2.Assign2.TasksArrays.columns;
+
+public class Task8Encode {
+
+
+    public static void encode(int sqrtN, int[][] hints, int[][][] map) {
+        // making sure the the vars in hints[][] are in the map
+        int a = 0;
+        int b = 0;
+        int value = 0;
+        for (int i = 0; i < hints.length; i++) {
+            a = hints[i][0];
+            b = hints[i][1];
+            value = hints[i][2];
+            map[a][b][value - 1] = varName(a, b, value - 1, sqrtN * sqrtN);
+
+        }
+        int N = sqrtN * sqrtN * sqrtN * sqrtN;//==n^2
+        SATSolver.init(N);
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                SATSolver.addClauses(exactlyOne(map[i][j]));
+            }
+        }
+
+        //now we will add clauses from the map blocks array
+        int newMap[][][] = new int[sqrtN * sqrtN][sqrtN * sqrtN][sqrtN * sqrtN];
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                for (int q = 0; q < map[i][j].length; q++) {
+                    newMap[i][j][q] = map[i][j][q];
+                }
+            }
+        }
+        for (int i = 0; i < newMap.length; i++) {
+            for (int j = 0; j < newMap[i].length; j++) {
+                SATSolver.addClauses(exactlyOne(blocks(newMap[i], sqrtN)[j]));
+            }
+        }
+        // now for columns
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                SATSolver.addClauses(exactlyOne(columns(map[i])[j]));
+            }
+        }
+    }
+}
+
+
+
+
+
