@@ -1,0 +1,25 @@
+package Assign2.Assign2;
+
+import static Assign2.Assign2.Task7Map.varName;
+
+public class Task9Decode {
+
+    public static int cellValue(int[][][] map, int i, int j, boolean[] assignment) {
+        int a = 0, b = 0, c = 0, d = 0;
+        int n = map.length;
+        a = varName(i, j, 0, n);
+        b = varName(i, j, 1, n);
+        c = varName(i, j, 2, n);
+        d = varName(i, j, 3, n);
+        if (!(assignment[a] && assignment[b] && assignment[c] && assignment[c] && assignment[d]))
+            throw new RuntimeException("illegal arguments");
+
+
+        return 0;
+    }
+
+    public static int[][] mapToBoard(int[][][] map, int n, boolean[] assignment) {
+        // you may remove this comment and the next line
+        return null;
+    }
+}
