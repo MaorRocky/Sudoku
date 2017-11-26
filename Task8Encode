@@ -1,27 +1,33 @@
 package Assign2.Assign2;
 
 import static Assign2.Assign2.Task6Cnf.exactlyOne;
-import static Assign2.Assign2.Task7Map.varName;
 import static Assign2.Assign2.TasksArrays.blocks;
 import static Assign2.Assign2.TasksArrays.columns;
+import static Assign2.Assign2.Task7Map.varName;
+
 
 public class Task8Encode {
 
 
     public static void encode(int sqrtN, int[][] hints, int[][][] map) {
-        // making sure the the vars in hints[][] are in the map
+        int length = sqrtN * sqrtN;//the length of the Sudoku board
+        int N = length * length;//==n^2 the number of vars in the sat solver
+        SATSolver.init(N);
+
+        // well add a clauses from the hints array
         int a = 0;
         int b = 0;
         int value = 0;
+        int clause[] = new int[1];
         for (int i = 0; i < hints.length; i++) {
             a = hints[i][0];
             b = hints[i][1];
             value = hints[i][2];
-            map[a][b][value - 1] = varName(a, b, value - 1, sqrtN * sqrtN);
-
+            clause[0] = varName(a, b, value - 1, length);
+            SATSolver.addClause(clause);
         }
-        int N = sqrtN * sqrtN * sqrtN * sqrtN;//==n^2
-        SATSolver.init(N);
+
+        // now we will add clause of each line from the map array.
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 SATSolver.addClauses(exactlyOne(map[i][j]));
