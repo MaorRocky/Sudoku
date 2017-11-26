@@ -1,9 +1,8 @@
 package Assign2.Assign2;
 
 import static Assign2.Assign2.Task6Cnf.exactlyOne;
-import static Assign2.Assign2.TasksArrays.blocks;
-import static Assign2.Assign2.TasksArrays.columns;
 import static Assign2.Assign2.Task7Map.varName;
+import static Assign2.Assign2.TasksArrays.blocks;
 
 
 public class Task8Encode {
@@ -12,7 +11,7 @@ public class Task8Encode {
     public static void encode(int sqrtN, int[][] hints, int[][][] map) {
         int length = sqrtN * sqrtN;//the length of the Sudoku board
         int N = length * length;//==n^2 the number of vars in the sat solver
-        SATSolver.init(N);
+        SATSolver.init(N);// initializing the SATSOLVER
 
         // well add a clauses from the hints array
         int a = 0;
@@ -34,6 +33,7 @@ public class Task8Encode {
             }
         }
 
+
         //now we will add clauses from the map blocks array
         int newMap[][][] = new int[sqrtN * sqrtN][sqrtN * sqrtN][sqrtN * sqrtN];
         for (int i = 0; i < map.length; i++) {
@@ -48,16 +48,47 @@ public class Task8Encode {
                 SATSolver.addClauses(exactlyOne(blocks(newMap[i], sqrtN)[j]));
             }
         }
-        // now for columns
+        // now for columns//
+        // MapForColumns is a new map for columns3D function
+        int MapForColumns[][][] = new int[sqrtN * sqrtN][sqrtN * sqrtN][sqrtN * sqrtN];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
-                SATSolver.addClauses(exactlyOne(columns(map[i])[j]));
+                for (int q = 0; q < map[i][j].length; q++) {
+                    MapForColumns[i][j][q] = map[i][j][q];
+                }
             }
         }
+        columns3d(MapForColumns);// transposing the map array.
+
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                SATSolver.addClauses(exactlyOne((map[i][j])));// adding each column of the original map to the sat
+            }                                                    //solver
+        }
     }
+
+
+    /// columns for 3D array
+    public static int[][][] columns3d(int[][][] ColMap) {
+        int[][][] colMatrix = new int[ColMap.length][ColMap.length][ColMap.length];
+        for (int i = 0; i < ColMap.length; i++) {
+            for (int j = 0; j < ColMap.length; j++) {
+                for (int q = 0; q < ColMap.length; q++) {
+                    colMatrix[i][j][q] = ColMap[q][i][j];
+                }
+            }
+        }
+
+        for (int i = 0; i < ColMap.length; i++) {//might delete it
+            for (int j = 0; j < ColMap.length; j++) {
+                for (int q = 0; q < ColMap.length; q++) {
+                    ColMap[i][j][q] = colMatrix[i][j][q];
+                }
+            }
+        }
+        return ColMap;
+    }
+
 }
-
-
-
 
 
