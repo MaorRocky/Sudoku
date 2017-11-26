@@ -1,15 +1,16 @@
+package Assign2.Assign2;
 
 public class TasksArrays {
 
     public static boolean isAllDiff(int[] array) {
-        boolean different = true;
-        for (int i = 0; i < array.length - 1 && different; i++) {
-            for (int j = i + 1; j < array.length && different; j++) {
+        boolean isDifferent = true;
+        for (int i = 0; i < array.length - 1 && isDifferent; i++) {
+            for (int j = i + 1; j < array.length && isDifferent; j++) {
                 if (array[i] == array[j])
-                    different = false;
+                    isDifferent = false;
             }
         }
-        return different;
+        return isDifferent;
     }
 
     public static boolean isMatrixBetween(int[][] matrix, int n, int min, int max) {
@@ -20,8 +21,8 @@ public class TasksArrays {
                 rangeCheck = false;
         }
         //now we'll check if the matrix values is between the given ranges.
-        for (int i = 0; i < matrix.length && rangeCheck; i++) {
-            for (int j = 0; j < matrix.length && rangeCheck; j++) {
+        for (int i = 0; i < n && rangeCheck; i++) {
+            for (int j = 0; j < n && rangeCheck; j++) {
                 if (matrix[i][j] < min || matrix[i][j] > max)
                     rangeCheck = false;
 
@@ -37,12 +38,12 @@ public class TasksArrays {
                 colMatrix[i][j] = matrix[j][i];
             }
         }
-        for (int i = 0; i < matrix.length; i++) {
+        for (int i = 0; i < matrix.length; i++) {//might delete it
             for (int j = 0; j < matrix.length; j++) {
                 matrix[i][j] = colMatrix[i][j];
             }
         }
-        return null;
+        return colMatrix;
     }
 
     public static int[][] blocks(int[][] matrix, int sqrtN) {
@@ -70,6 +71,6 @@ public class TasksArrays {
                 matrix[i][k] = blocMatrix[i][k];
             }
         }
-        return null;
+        return blocMatrix;
     }
 }
