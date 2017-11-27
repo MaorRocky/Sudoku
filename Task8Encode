@@ -2,7 +2,6 @@ package Assign2.Assign2;
 
 import static Assign2.Assign2.Task6Cnf.exactlyOne;
 import static Assign2.Assign2.Task7Map.varName;
-import static Assign2.Assign2.TasksArrays.blocks;
 
 
 public class Task8Encode {
@@ -35,22 +34,26 @@ public class Task8Encode {
 
 
         //now we will add clauses from the map blocks array
-        int newMap[][][] = new int[sqrtN * sqrtN][sqrtN * sqrtN][sqrtN * sqrtN];
+        int BlockMap[][][] = new int[length][length][length];// a new map for block clauses
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 for (int q = 0; q < map[i][j].length; q++) {
-                    newMap[i][j][q] = map[i][j][q];
+                    BlockMap[i][j][q] = map[i][j][q];
                 }
             }
         }
-        for (int i = 0; i < newMap.length; i++) {
-            for (int j = 0; j < newMap[i].length; j++) {
-                SATSolver.addClauses(exactlyOne(blocks(newMap[i], sqrtN)[j]));
+        blocks3D(BlockMap,sqrtN);// taking the original map and making it a block matrix
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                SATSolver.addClauses(exactlyOne(BlockMap[i][j]));//adding each cell as a clause
             }
         }
+
+
+
         // now for columns//
         // MapForColumns is a new map for columns3D function
-        int MapForColumns[][][] = new int[sqrtN * sqrtN][sqrtN * sqrtN][sqrtN * sqrtN];
+        int MapForColumns[][][] = new int[length][length][length];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 for (int q = 0; q < map[i][j].length; q++) {
@@ -58,7 +61,7 @@ public class Task8Encode {
                 }
             }
         }
-        columns3d(MapForColumns);// transposing the map array.
+        columns3D(MapForColumns);// transposing the map array.
 
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
@@ -68,8 +71,8 @@ public class Task8Encode {
     }
 
 
-    /// columns for 3D array
-    public static int[][][] columns3d(int[][][] ColMap) {
+    //// columns for 3D array////
+    public static int[][][] columns3D(int[][][] ColMap) {
         int[][][] colMatrix = new int[ColMap.length][ColMap.length][ColMap.length];
         for (int i = 0; i < ColMap.length; i++) {
             for (int j = 0; j < ColMap.length; j++) {
@@ -89,6 +92,51 @@ public class Task8Encode {
         return ColMap;
     }
 
+    //BLOCK MATRIX///
+    public static int[][][] blocks3D(int[][][] matrix, int sqrtN) {
+        int countRow = -1;
+        int countCol = 0;
+        int countDim = 0;
+        int[][][] blocMatrix = new int[matrix.length][matrix.length][matrix.length];
+        for (int i = 0; i < matrix.length; i = i + sqrtN) {
+            for (int j = 0; j < matrix.length; j = j + sqrtN) {
+                for (int z = 0; z < matrix.length; z = z + sqrtN) {
+                    countRow++;
+                    countDim = 0;
+                    countCol = 0;
+                    for (int q = i; q < i + sqrtN; q++) {
+                        for (int k = j; k < j + sqrtN; k++) {
+                            for (int p = z; p < z + sqrtN; p++) {
+                                blocMatrix[countRow][countCol][countDim] = matrix[k][q][p];
+                                countDim++;
+                                if (countDim >= matrix.length) {
+                                    countDim = 0;
+                                    countCol++;
+                                }
+                                if (countCol >= matrix.length) {
+                                    countRow++;
+                                    countDim = 0;
+                                    countCol = 0;
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }// now we will copy our block matrix values into the given matrix from the user.
+        for (int i = 0; i < matrix.length; i++) {
+            for (int k = 0; k < matrix.length; k++) {
+                for (int q = 0; q < matrix.length; q++) {
+                    matrix[i][k][q] = blocMatrix[i][k][q];
+                }
+            }
+        }
+        return blocMatrix;
+    }
 }
+
+
+
 
 
