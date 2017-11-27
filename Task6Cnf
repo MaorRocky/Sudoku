@@ -1,58 +1,60 @@
 package Assign2.Assign2;
 
+
 public class Task6Cnf {
 
+    // if all the vars are positive, than a clause which include all of them will suffice
     public static int[][] atLeastOne(int[] vars) {
-        int[][] ALO = new int[1][vars.length];
-        for (int i = 0; i < vars.length; i++) {
+        int[][] AtLeastOneArray = new int[1][vars.length];
+        for (int i = 0; i < vars.length; i++) { // now we will make sure that each var is positive(true)
             if (vars[i] < 0) {
-                vars[i] = (-1 * vars[i]);
+                vars[i] = vars[i] * (-1);
             }
         }
-        for (int i = 0; i < 1; i++) {
-            for (int j = 0; j < vars.length; j++) {
-                ALO[i][j] = vars[j];
-            }
+        for (int j = 0; j < vars.length; j++) {
+            AtLeastOneArray[0][j] = vars[j];
         }
-
-        return ALO;
+        return AtLeastOneArray;
     }
 
 
     public static int[][] atMostOne(int[] vars) {
+        // at most one means that each clause contains two vars, and each of them is false
         int n = vars.length;
+        int binum = (n * (n - 1)) / 2;
         int counter = 0;
-        int[][] AMO = new int[(n * (n - 1)) / 2][2]; //newton binom;
-        for (int i = 0; i < vars.length - 1; i++) {
-            for (int j = i + 1; j < vars.length; j++) {
-                AMO[counter][0] = vars[i];
-                AMO[counter][1] = vars[j];
+        int[][] AtMostOneArray = new int[binum][2]; //newton binom;
+        System.out.println(AtMostOneArray.length);
+        System.out.println(AtMostOneArray[0].length);
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                AtMostOneArray[counter][0] = vars[i];
+                AtMostOneArray[counter][1] = vars[j];
                 counter++;
             }
         }
-        for (int i = 0; i < n; i++) { //now we will make every var negative.
+
+        for (int i = 0; i < binum; i++) { //now we will make each var negative.
             for (int j = 0; j < 2; j++) {
-                if (AMO[i][j] > 0) {
-                    AMO[i][j] = -AMO[i][j];
+                if (AtMostOneArray[i][j] > 0) {
+                    AtMostOneArray[i][j] = AtMostOneArray[i][j] * (-1);
                 }
             }
         }
-
-
-        return AMO;
+        return AtMostOneArray;
     }
 
     public static int[][] exactlyOne(int[] vars) {
-        int x = atLeastOne(vars)[0].length;
-        int y = atMostOne(vars).length;
+        int x = (atLeastOne(vars)[0].length);
+        int y = (atMostOne(vars).length);
         int EO[][] = new int[y + 1][2];
         EO[0] = new int[x];
         for (int j = 0; j < x; j++) {
             EO[0][j] = atLeastOne(vars)[0][j];
         }
-        for (int i =1;i<y+1;i++){
-            for (int j=0;j<2;j++){
-                EO[i][j] = atMostOne(vars)[i-1][j];
+        for (int i = 1; i < y + 1; i++) {
+            for (int j = 0; j < 2; j++) {
+                EO[i][j] = atMostOne(vars)[i - 1][j];
             }
         }
         return EO;
