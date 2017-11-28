@@ -23,36 +23,19 @@ public class Task8Encode {
             clause[0] = varName(a, b, value - 1, N);
             SATSolver.addClause(clause);
         }
-
-        // now we will add each clause from each line of the map array.
-        int[] lines = new int[N];
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
-                for (int k = 0; k < map[i][j].length; k++) {
-                    lines[k] = map[i][k][j];
-                }
-                SATSolver.addClauses(exactlyOne(lines));
-            }
-        }
-
-
+        // now we well add clauses of lines
+        addClauses(map, N);
         //now we will add clauses from the map blocks array
         int BlockMap[][][] = new int[map.length][map.length][map.length];// a new map for block clauses
-        for (int i = 0; i < map.length; i++) {
+        for (int i = 0; i < map.length; i++) {                              // so we don't change the input
             for (int j = 0; j < map[i].length; j++) {
                 for (int q = 0; q < map[i][j].length; q++) {
                     BlockMap[i][j][q] = map[i][j][q];
                 }
             }
         }
-        BlockMap = blocks3D(BlockMap, sqrtN);// taking the original map and making it a block matrix
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
-                SATSolver.addClauses(exactlyOne(BlockMap[i][j]));//adding each cell as a clause
-            }
-        }
-
-
+        BlockMap = BLOCKS3D(BlockMap, sqrtN);// taking the original map and making it a block matrix
+        addClauses(BlockMap, N);
         //*** now for columns***//
         // MapForColumns is a new map for columns3D function
         int MapForColumns[][][] = new int[N][N][N];
@@ -63,17 +46,8 @@ public class Task8Encode {
                 }
             }
         }
-
         MapForColumns = columns3D(MapForColumns);// transposing the map array.
-        int[] columns = new int[N];
-        for (int i = 0; i < MapForColumns.length; i++) {
-            for (int j = 0; j < MapForColumns[i].length; j++) {
-                for (int k = 0; k < MapForColumns[i][j].length; k++) {
-                    columns[k] = MapForColumns[i][k][j];
-                }
-                SATSolver.addClauses(exactlyOne(columns));
-            }
-        }
+        addClauses(MapForColumns, N);
     }
 
 
@@ -90,51 +64,41 @@ public class Task8Encode {
         return colMatrix;
     }
 
+
     //BLOCK MATRIX///
-    public static int[][][] blocks3D(int[][][] map, int sqrtN) {
+    public static int[][][] BLOCKS3D(int[][][] matrix, int sqrtN) {
         int countRow = -1;
         int countCol = 0;
-        int countDim = 0;
-        int[][][] blocMatrix = new int[map.length][map.length][map.length];
-        for (int i = 0; i < map.length; i = i + sqrtN) {
-            for (int j = 0; j < map.length; j = j + sqrtN) {
-                for (int z = 0; z < map.length; z = z + sqrtN) {
-                    countRow++;
-                    countDim = 0;
-                    countCol = 0;
-                    for (int q = i; q < i + sqrtN; q++) {
-                        for (int k = j; k < j + sqrtN; k++) {
-                            for (int p = z; p < z + sqrtN; p++) {
-                                blocMatrix[countRow][countCol][countDim] = map[k][q][p];
-                                countDim++;
-                                if (countDim >= map.length) {
-                                    countDim = 0;
-                                    countCol++;
-                                }
-                                if (countCol >= map.length) {
-                                    countRow++;
-                                    countDim = 0;
-                                    countCol = 0;
-
-                                }
-                            }
+        int[][][] blocMatrix = new int[matrix.length][matrix.length][matrix.length];
+        for (int i = 0; i < matrix.length; i = i + sqrtN) {
+            for (int j = 0; j < matrix.length; j = j + sqrtN) {
+                countRow++;
+                countCol = 0;
+                for (int q = i; q < i + sqrtN; q++) {
+                    for (int k = j; k < j + sqrtN; k++) {
+                        blocMatrix[countRow][countCol] = matrix[q][k];
+                        countCol++;
+                        if (countCol == matrix.length) {
+                            countCol = 0;
                         }
                     }
-                }
-            }
-        }// now we will copy our block matrix values into the given matrix from the user.
-        for (int i = 0; i < map.length; i++) {
-            for (int k = 0; k < map.length; k++) {
-                for (int q = 0; q < map.length; q++) {
-                    map[i][k][q] = blocMatrix[i][k][q];
                 }
             }
         }
         return blocMatrix;
     }
+
+    public static void addClauses(int[][][] map, int N) {//this function will add clauses from each
+        int[] Clauses = new int[N];//specific array
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                for (int k = 0; k < map[i][j].length; k++) {
+                    Clauses[k] = map[i][k][j];
+                }
+                SATSolver.addClauses(exactlyOne(Clauses));
+            }
+        }
+    }
 }
-
-
-
 
 
