@@ -8,10 +8,9 @@ public class Task8Encode {
 
 
     public static void encode(int sqrtN, int[][] hints, int[][][] map) {
-        int length = sqrtN * sqrtN;//the length of the Sudoku board
-        int N = length * length;//==n^2 the number of vars in the sat solver
-        SATSolver.init(N);// initializing the SATSOLVER
-
+        int N = sqrtN * sqrtN;//the length of the Sudoku board
+        //==n^3 the number of vars in the sat solver
+        SATSolver.init(N * N * N);// initializing the SATSOLVER N^3
         // well add a clauses from the hints array
         int a = 0;
         int b = 0;
@@ -21,20 +20,24 @@ public class Task8Encode {
             a = hints[i][0];
             b = hints[i][1];
             value = hints[i][2];
-            clause[0] = varName(a, b, value - 1, length);
+            clause[0] = varName(a, b, value - 1, N);
             SATSolver.addClause(clause);
         }
 
-        // now we will add clause of each line from the map array.
+        // now we will add each clause from each line of the map array.
+        int[] lines = new int[N];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
-                SATSolver.addClauses(exactlyOne(map[i][j]));
+                for (int k = 0; k < map[i][j].length; k++) {
+                    lines[k] = map[i][k][j];
+                }
+                SATSolver.addClauses(exactlyOne(lines));
             }
         }
 
 
         //now we will add clauses from the map blocks array
-        int BlockMap[][][] = new int[length][length][length];// a new map for block clauses
+        int BlockMap[][][] = new int[map.length][map.length][map.length];// a new map for block clauses
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 for (int q = 0; q < map[i][j].length; q++) {
@@ -42,7 +45,7 @@ public class Task8Encode {
                 }
             }
         }
-        blocks3D(BlockMap,sqrtN);// taking the original map and making it a block matrix
+        BlockMap = blocks3D(BlockMap, sqrtN);// taking the original map and making it a block matrix
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 SATSolver.addClauses(exactlyOne(BlockMap[i][j]));//adding each cell as a clause
@@ -50,10 +53,9 @@ public class Task8Encode {
         }
 
 
-
-        // now for columns//
+        //*** now for columns***//
         // MapForColumns is a new map for columns3D function
-        int MapForColumns[][][] = new int[length][length][length];
+        int MapForColumns[][][] = new int[N][N][N];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 for (int q = 0; q < map[i][j].length; q++) {
@@ -61,59 +63,55 @@ public class Task8Encode {
                 }
             }
         }
-        columns3D(MapForColumns);// transposing the map array.
 
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
-                SATSolver.addClauses(exactlyOne((map[i][j])));// adding each column of the original map to the sat
-            }                                                    //solver
+        MapForColumns = columns3D(MapForColumns);// transposing the map array.
+        int[] columns = new int[N];
+        for (int i = 0; i < MapForColumns.length; i++) {
+            for (int j = 0; j < MapForColumns[i].length; j++) {
+                for (int k = 0; k < MapForColumns[i][j].length; k++) {
+                    columns[k] = MapForColumns[i][k][j];
+                }
+                SATSolver.addClauses(exactlyOne(columns));
+            }
         }
     }
 
 
     //// columns for 3D array////
-    public static int[][][] columns3D(int[][][] ColMap) {
-        int[][][] colMatrix = new int[ColMap.length][ColMap.length][ColMap.length];
-        for (int i = 0; i < ColMap.length; i++) {
-            for (int j = 0; j < ColMap.length; j++) {
-                for (int q = 0; q < ColMap.length; q++) {
-                    colMatrix[i][j][q] = ColMap[q][i][j];
+    public static int[][][] columns3D(int[][][] map) {
+        int[][][] colMatrix = new int[map.length][map.length][map.length];
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map.length; j++) {
+                for (int q = 0; q < map.length; q++) {
+                    colMatrix[i][j][q] = map[q][i][j];
                 }
             }
         }
-
-        for (int i = 0; i < ColMap.length; i++) {//might delete it
-            for (int j = 0; j < ColMap.length; j++) {
-                for (int q = 0; q < ColMap.length; q++) {
-                    ColMap[i][j][q] = colMatrix[i][j][q];
-                }
-            }
-        }
-        return ColMap;
+        return colMatrix;
     }
 
     //BLOCK MATRIX///
-    public static int[][][] blocks3D(int[][][] matrix, int sqrtN) {
+    public static int[][][] blocks3D(int[][][] map, int sqrtN) {
         int countRow = -1;
         int countCol = 0;
         int countDim = 0;
-        int[][][] blocMatrix = new int[matrix.length][matrix.length][matrix.length];
-        for (int i = 0; i < matrix.length; i = i + sqrtN) {
-            for (int j = 0; j < matrix.length; j = j + sqrtN) {
-                for (int z = 0; z < matrix.length; z = z + sqrtN) {
+        int[][][] blocMatrix = new int[map.length][map.length][map.length];
+        for (int i = 0; i < map.length; i = i + sqrtN) {
+            for (int j = 0; j < map.length; j = j + sqrtN) {
+                for (int z = 0; z < map.length; z = z + sqrtN) {
                     countRow++;
                     countDim = 0;
                     countCol = 0;
                     for (int q = i; q < i + sqrtN; q++) {
                         for (int k = j; k < j + sqrtN; k++) {
                             for (int p = z; p < z + sqrtN; p++) {
-                                blocMatrix[countRow][countCol][countDim] = matrix[k][q][p];
+                                blocMatrix[countRow][countCol][countDim] = map[k][q][p];
                                 countDim++;
-                                if (countDim >= matrix.length) {
+                                if (countDim >= map.length) {
                                     countDim = 0;
                                     countCol++;
                                 }
-                                if (countCol >= matrix.length) {
+                                if (countCol >= map.length) {
                                     countRow++;
                                     countDim = 0;
                                     countCol = 0;
@@ -125,10 +123,10 @@ public class Task8Encode {
                 }
             }
         }// now we will copy our block matrix values into the given matrix from the user.
-        for (int i = 0; i < matrix.length; i++) {
-            for (int k = 0; k < matrix.length; k++) {
-                for (int q = 0; q < matrix.length; q++) {
-                    matrix[i][k][q] = blocMatrix[i][k][q];
+        for (int i = 0; i < map.length; i++) {
+            for (int k = 0; k < map.length; k++) {
+                for (int q = 0; q < map.length; q++) {
+                    map[i][k][q] = blocMatrix[i][k][q];
                 }
             }
         }
